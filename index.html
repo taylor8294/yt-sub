@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Subscriptions Place Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .video-row {
+      margin: 10px 0;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      margin-right: 10px;
+    }
+    textarea, input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <p>This tool allows you to import a list of YouTube videos (e.g. your subscriptions) and track your progress through them so you don't forget where you got to, and can easily pick up from the last video you watched.</p>
+
+  <div id="previous-video" class="video-row"></div>
+  <div id="current-video" class="video-row"></div>
+  <div><img id="thumbnail" src="" /></div>
+  <div id="next-video" class="video-row"></div>
+
+  <div class="buttons">
+    <button id="go-back">&lt; Go Back</button>
+    <button id="watch-next">Watch Next &triangleright;</button>
+    <button id="skip">Skip &gt;</button>
+  </div>
+
+  <div class="buttons"><button id="clear-watched-videos">Clear Watched Videos</button></div>
+
+  <h2>Update Video List</h2>
+  <textarea id="video-list-input" rows="5" placeholder="Update video list in JSON format"></textarea>
+  <button id="save-video-list">Save Video List</button>
+  <p id="current-index"></p>
+
+  <h2>Set Current Video ID</h2>
+  <input id="current-id-input" type="text" placeholder="Video ID" />
+  <button id="set-current-index">Set current index to ID</button>
+
+  <script>
+    // Check if video list and current index exist in localStorage, else use defaults
+    let videoList = JSON.parse(localStorage.getItem('videoList'));
+    if(!videoList || !videoList.length)
+      videoList = [
+        { videoId: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', channel: 'Rick Astley', url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { videoId: '3JZ_D3ELwOQ', title: 'Shape of You', channel: 'Ed Sheeran', url: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ' },
+        { videoId: '9bZkp7q19f0', title: 'Gangnam Style', channel: 'PSY', url: 'https://www.youtube.com/watch?v=9bZkp7q19f0' },
+        { videoId: '1zGd2t9dd8w', title: 'Shake It Off', channel: 'Taylor Swift', url: 'https://www.youtube.com/watch?v=1zGd2t9dd8w' }
+      ];
+
+    let currentIndex = parseInt(localStorage.getItem('currentIndex')) || 0;
+
+    function updateVideoDisplay() {
+      const prevIndex = (currentIndex - 1 + videoList.length) % videoList.length;
+      const nextIndex = (currentIndex + 1) % videoList.length;
+
+      // Update the video display rows with titles and links
+      document.getElementById('previous-video').innerHTML = `Previous Video: <a href="${videoList[videoList.length-1-prevIndex].url}" target="_blank">${videoList[videoList.length-1-prevIndex].title} - ${videoList[videoList.length-1-prevIndex].channel}</a>`;
+      document.getElementById('current-video').innerHTML = `Current Video: <a href="${videoList[videoList.length-1-currentIndex].url}" target="_blank">${videoList[videoList.length-1-currentIndex].title} - ${videoList[videoList.length-1-currentIndex].channel}</a>`;
+      document.getElementById('thumbnail').src = videoList[videoList.length-1-currentIndex].thumbnail;
+      document.getElementById('next-video').innerHTML = `Next Video: <a href="${videoList[videoList.length-1-nextIndex].url}" target="_blank">${videoList[videoList.length-1-nextIndex].title} - ${videoList[videoList.length-1-nextIndex].channel}</a>`;
+      document.getElementById('video-list-input').value = JSON.stringify(videoList, null, 2);
+      document.getElementById('current-index').innerHTML = `Current index is: ${currentIndex}`;
+    }
+
+    // Event listeners for buttons
+    document.getElementById('go-back').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + videoList.length) % videoList.length;
+      localStorage.setItem('currentIndex', currentIndex);
+      updateVideoDisplay();
+    });
+
+    document.getElementById('watch-next').addEventListener('click', () => {
+      const url = videoList[videoList.length-1-currentIndex].url;
+      window.open(url, '_blank');
+      currentIndex = (currentIndex + 1) % videoList.length;
+      localStorage.setItem('currentIndex', currentIndex);
+      updateVideoDisplay();
+    });
+
+    document.getElementById('skip').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % videoList.length;
+      localStorage.setItem('currentIndex', currentIndex);
+      updateVideoDisplay();
+    });
+
+    document.getElementById('clear-watched-videos').addEventListener('click', () => {
+      // Clear all videos up to the one before the current index
+      if (currentIndex > 1) {
+        videoList = videoList.slice(0,-currentIndex+1); // Retain only the videos from currentIndex onward
+      }
+
+      // Set the current index to 1 (after the first video)
+      currentIndex = 1;
+
+      // Update the video list and current index in localStorage
+      localStorage.setItem('videoList', JSON.stringify(videoList));
+      localStorage.setItem('currentIndex', currentIndex);
+      alert('Video list updated!');
+      updateVideoDisplay();
+    });
+
+    // Event listener for saving the video list from the textarea
+    document.getElementById('save-video-list').addEventListener('click', () => {
+      const savedVideoId = videoList[videoList.length-1-currentIndex].videoId;
+      const newVideoList = document.getElementById('video-list-input').value;
+      try {
+        videoList = JSON.parse(newVideoList);
+        // Find the saved videoId in the new list and update the current index
+        const foundIndex = videoList.findIndex(video => video.videoId === savedVideoId);
+        currentIndex = foundIndex !== -1 ? videoList.length-1-foundIndex : 0;
+        localStorage.setItem('currentIndex', currentIndex);
+        localStorage.setItem('videoList', JSON.stringify(videoList));
+        alert('Video list updated!');
+        updateVideoDisplay();
+      } catch (error) {
+        alert('Invalid JSON format. Please try again.');
+      }
+    });
+
+    // Event listener for setting the current index manually
+    document.getElementById('set-current-index').addEventListener('click', () => {
+      const newIndex = videoList.length-1-videoList.findIndex(video => video.videoId === document.getElementById('current-id-input').value);
+      if (newIndex >= 0 && newIndex < videoList.length) {
+        currentIndex = newIndex;
+        localStorage.setItem('currentIndex', currentIndex);
+        document.getElementById('current-id-input').value = '';
+        updateVideoDisplay();
+      } else {
+        alert('Video ID not found');
+      }
+    });
+
+    // Initialize the page with the video display
+    updateVideoDisplay();
+  </script>
+
+</body>
+</html>
