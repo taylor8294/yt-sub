@@ -1,0 +1,8 @@
+# Ignore the .vscode directory
+.vscode/
+
+# Ignore the node_modules folder
+node_modules/
+
+# Ignore any file containing the substring "cred"
+*cred*
