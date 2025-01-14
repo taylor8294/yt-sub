@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in with YouTube</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <button id="login-button">Log in with YouTube</button>
+  <div id="subscription-list"></div>
+
+  <script>
+    const CLIENT_ID = '561322356328-85re3ua1e0fb83sleqhr9n2n708ofu46.apps.googleusercontent.com'; // Web client 1
+    const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
+
+    const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'];
+
+    document.getElementById('login-button').addEventListener('click', handleAuth);
+
+    function handleAuth() {
+      gapi.load('client:auth2', () => {
+        gapi.client.init({
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES,
+        }).then(() => {
+          const authInstance = gapi.auth2.getAuthInstance();
+          if (authInstance.isSignedIn.get()) {
+            fetchSubscriptionVideos();
+          } else {
+            authInstance.signIn().then(fetchSubscriptionVideos);
+          }
+        }).catch(err => {
+          console.error('Error initializing Google API client:', err);
+        });
+      });
+    }
+
+    function fetchSubscriptionVideos() {
+      gapi.client.youtube.subscriptions.list({
+        part: 'snippet',
+        mine: true,
+        maxResults: 10,
+      }).then(response => {
+        debugger;
+        const subscriptions = response.result.items;
+        const listDiv = document.getElementById('subscription-list');
+        listDiv.innerHTML = '';
+        subscriptions.forEach(sub => {
+          const title = sub.snippet.title;
+          const channelId = sub.snippet.resourceId.channelId;
+          const thumbnail = sub.snippet.thumbnails.default.url;
+          listDiv.innerHTML += `
+            <div>
+              <img src="${thumbnail}" alt="${title}" />
+              <p>${title}</p>
+            </div>`;
+        });
+      }).catch(err => {
+        console.error('Error fetching subscriptions:', err);
+      });
+    }
+  </script>
+</body>
+</html>
