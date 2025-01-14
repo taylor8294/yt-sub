@@ -11,7 +11,7 @@
         client_id: '561322356328-85re3ua1e0fb83sleqhr9n2n708ofu46.apps.googleusercontent.com',
         cookiepolicy: 'single_host_origin',
         // Request scopes in addition to 'profile' and 'email'
-        //scope: 'additional_scope'
+        scope: 'https://www.googleapis.com/auth/youtube.readonly'
       });
       attachSignin(document.getElementById('customBtn'));
     });
@@ -23,9 +23,29 @@
         function(googleUser) {
           document.getElementById('name').innerText = "Signed in: " +
               googleUser.getBasicProfile().getName();
+          fetchYouTubeSubscriptions();
         }, function(error) {
           alert(JSON.stringify(error, undefined, 2));
         });
+  }
+
+  function fetchYouTubeSubscriptions() {
+    gapi.client.load('youtube', 'v3', function() {
+      gapi.client.youtube.subscriptions.list({
+        part: 'snippet',
+        mine: true,
+        maxResults: 10
+      }).then(function(response) {
+        console.log(response.result);
+        var subscriptions = response.result.items;
+        var output = '<h2>Your Subscriptions</h2><ul>';
+        subscriptions.forEach(function(subscription) {
+          output += '<li>' + subscription.snippet.title + '</li>';
+        });
+        output += '</ul>';
+        document.getElementById('name').innerHTML += output;
+      });
+    });
   }
   </script>
   <style type="text/css">
