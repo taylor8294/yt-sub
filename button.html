@@ -29,21 +29,33 @@
         });
   }
 
-  function fetchYouTubeSubscriptions() {
+  function fetchYouTubeSubscriptions(pageToken) {
     gapi.client.load('youtube', 'v3', function() {
-      gapi.client.youtube.subscriptions.list({
+      var requestOptions = {
         part: 'snippet',
         mine: true,
-        maxResults: 10
-      }).then(function(response) {
+        maxResults: 50
+      };
+      if (pageToken) {
+        requestOptions.pageToken = pageToken;
+      }
+      gapi.client.youtube.subscriptions.list(requestOptions).then(function(response) {
         console.log(response.result);
         var subscriptions = response.result.items;
-        var output = '<h2>Your Subscriptions</h2><ul>';
+        var output = document.getElementById('name').innerHTML;
+        if (!output.includes('<h2>Your Subscriptions</h2>')) {
+          output += '<h2>Your Subscriptions</h2><ul>';
+        }
         subscriptions.forEach(function(subscription) {
           output += '<li>' + subscription.snippet.title + '</li>';
         });
-        output += '</ul>';
-        document.getElementById('name').innerHTML += output;
+        document.getElementById('name').innerHTML = output;
+
+        if (response.result.nextPageToken) {
+          fetchYouTubeSubscriptions(response.result.nextPageToken);
+        } else {
+          document.getElementById('name').innerHTML += '</ul>';
+        }
       });
     });
   }
