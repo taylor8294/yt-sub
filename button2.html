@@ -9,16 +9,10 @@
       console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
       gapi.load('client', async () => {
         try {
-            await gapi.client.init({
-                apiKey: 'AIzaSyBp3CjYhd3HSd7wRUYp2WkutEk'+String.fromCharCode(45)+'7BTucWM',
-                clientId: document.querySelector('[name="google-signin-client_id"]').getAttribute('content'),
-                discoveryDocs: [
-                    'https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest',
-                ],
-                scope: 'https://www.googleapis.com/auth/youtube.readonly',
+            gapi.client.load('youtube', 'v3', function() {
+              console.log("GAPI client for YouTube loaded.");
+              fetchYouTubeSubscriptions();
             });
-            console.log("GAPI client for YouTube loaded.");
-            fetchYouTubeSubscriptions();
         } catch (err) {
             console.error("Error loading GAPI client for YouTube: ", err);
         }
@@ -39,33 +33,31 @@
       });
     }
     function fetchYouTubeSubscriptions(pageToken) {
-        gapi.client.load('youtube', 'v3', function() {
-            var requestOptions = {
-                part: 'snippet',
-                mine: true,
-                maxResults: 50
-            };
-            if (pageToken) {
-                requestOptions.pageToken = pageToken;
+        var requestOptions = {
+            part: 'snippet',
+            mine: true,
+            maxResults: 50
+        };
+        if (pageToken) {
+            requestOptions.pageToken = pageToken;
+        }
+        gapi.client.youtube.subscriptions.list(requestOptions).then(function(response) {
+            console.log(response.result);
+            var subscriptions = response.result.items;
+            var output = document.body.innerHTML;
+            if (!output.includes('<h2>Your Subscriptions</h2>')) {
+                output += '<h2>Your Subscriptions</h2><ul>';
             }
-            gapi.client.youtube.subscriptions.list(requestOptions).then(function(response) {
-                console.log(response.result);
-                var subscriptions = response.result.items;
-                var output = document.body.innerHTML;
-                if (!output.includes('<h2>Your Subscriptions</h2>')) {
-                    output += '<h2>Your Subscriptions</h2><ul>';
-                }
-                subscriptions.forEach(function(subscription) {
-                    output += '<li>' + subscription.snippet.title + '</li>';
-                });
-
-                if (response.result.nextPageToken) {
-                    fetchYouTubeSubscriptions(response.result.nextPageToken);
-                } else {
-                    output += '</ul>';
-                }
-                document.body.innerHTML = output;
+            subscriptions.forEach(function(subscription) {
+                output += '<li>' + subscription.snippet.title + '</li>';
             });
+
+            if (response.result.nextPageToken) {
+                fetchYouTubeSubscriptions(response.result.nextPageToken);
+            } else {
+                output += '</ul>';
+            }
+            document.body.innerHTML = output;
         });
     }
   </script>
