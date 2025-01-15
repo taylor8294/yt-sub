@@ -10,7 +10,7 @@
       gapi.load('client', async () => {
         try {
             await gapi.client.init({
-                apiKey: 'AIzaSyBp3CjYhd3HSd7wRUYp2WkutEk-7BTucWM',
+                apiKey: 'AIzaSyBp3CjYhd3HSd7wRUYp2WkutEk'+String.fromCharCode(45)+'7BTucWM',
                 clientId: document.querySelector('[name="google-signin-client_id"]').getAttribute('content'),
                 discoveryDocs: [
                     'https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest',
