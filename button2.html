@@ -7,6 +7,7 @@
   <script>
     function onSuccess(googleUser) {
       console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+      fetchYouTubeSubscriptions();
     }
     function onFailure(error) {
       console.log(error);
@@ -21,6 +22,36 @@
         'onsuccess': onSuccess,
         'onfailure': onFailure
       });
+    }
+    function fetchYouTubeSubscriptions(pageToken) {
+        gapi.client.load('youtube', 'v3', function() {
+            var requestOptions = {
+                part: 'snippet',
+                mine: true,
+                maxResults: 50
+            };
+            if (pageToken) {
+                requestOptions.pageToken = pageToken;
+            }
+            gapi.client.youtube.subscriptions.list(requestOptions).then(function(response) {
+                console.log(response.result);
+                var subscriptions = response.result.items;
+                var output = document.body.innerHTML;
+                if (!output.includes('<h2>Your Subscriptions</h2>')) {
+                    output += '<h2>Your Subscriptions</h2><ul>';
+                }
+                subscriptions.forEach(function(subscription) {
+                    output += '<li>' + subscription.snippet.title + '</li>';
+                });
+
+                if (response.result.nextPageToken) {
+                    fetchYouTubeSubscriptions(response.result.nextPageToken);
+                } else {
+                    output += '</ul>';
+                }
+                document.body.innerHTML = output;
+            });
+        });
     }
   </script>
 
