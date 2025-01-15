@@ -13,7 +13,7 @@
     }
     function renderButton() {
       gapi.signin2.render('my-signin2', {
-        'scope': 'profile email',
+        'scope': 'profile email https://www.googleapis.com/auth/youtube.readonly',
         'width': 240,
         'height': 50,
         'longtitle': true,
