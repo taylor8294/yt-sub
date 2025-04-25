@@ -33,7 +33,7 @@
 
   <div id="previous-video" class="video-row"></div>
   <div id="current-video" class="video-row"></div>
-  <div><img id="thumbnail" src="" /></div>
+  <div><a href="" target="_blank"><img id="thumbnail" src="" /></a></div>
   <div id="next-video" class="video-row"></div>
 
   <div class="buttons">
@@ -71,10 +71,11 @@
       const nextIndex = (currentIndex + 1) % videoList.length;
 
       // Update the video display rows with titles and links
-      document.getElementById('previous-video').innerHTML = `Previous Video: <a href="${videoList[videoList.length-1-prevIndex].url}" target="_blank">${videoList[videoList.length-1-prevIndex].title} - ${videoList[videoList.length-1-prevIndex].channel}</a>`;
-      document.getElementById('current-video').innerHTML = `Current Video: <a href="${videoList[videoList.length-1-currentIndex].url}" target="_blank">${videoList[videoList.length-1-currentIndex].title} - ${videoList[videoList.length-1-currentIndex].channel}</a>`;
+      document.getElementById('previous-video').innerHTML = `Previous Video: <a href="${videoList[videoList.length-1-prevIndex].url}" target="_blank">${videoList[videoList.length-1-prevIndex].title} - ${videoList[videoList.length-1-prevIndex].channel} [${videoList[videoList.length-1-prevIndex].length}]</a>`;
+      document.getElementById('current-video').innerHTML = `Current Video: <a href="${videoList[videoList.length-1-currentIndex].url}" target="_blank">${videoList[videoList.length-1-currentIndex].title} - ${videoList[videoList.length-1-currentIndex].channel} [${videoList[videoList.length-1-currentIndex].length}]</a>`;
       document.getElementById('thumbnail').src = videoList[videoList.length-1-currentIndex].thumbnail;
-      document.getElementById('next-video').innerHTML = `Next Video: <a href="${videoList[videoList.length-1-nextIndex].url}" target="_blank">${videoList[videoList.length-1-nextIndex].title} - ${videoList[videoList.length-1-nextIndex].channel}</a>`;
+      document.getElementById('thumbnail').parentElement.href = videoList[videoList.length-1-currentIndex].url;
+      document.getElementById('next-video').innerHTML = `Next Video: <a href="${videoList[videoList.length-1-nextIndex].url}" target="_blank">${videoList[videoList.length-1-nextIndex].title} - ${videoList[videoList.length-1-nextIndex].channel} [${videoList[videoList.length-1-nextIndex].length}]</a>`;
       document.getElementById('video-list-input').value = JSON.stringify(videoList, null, 2);
       document.getElementById('current-index').innerHTML = `Current index is: ${currentIndex}`;
     }
