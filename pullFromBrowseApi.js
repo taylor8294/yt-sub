@@ -25,8 +25,8 @@ function handleFirstPage(responseData){
       const videos = richGridRenderer.contents.filter(item => !!item.richItemRenderer).map(item => {
         const videoRenderer = item.richItemRenderer.content.videoRenderer;
         const videoId = videoRenderer.videoId;
-        const title = videoRenderer.title.runs[0].text;
-        const description = videoRenderer.descriptionSnippet.runs[0].text;
+        const title = videoRenderer.title?.runs[0].text;
+        const description = videoRenderer.descriptionSnippet?.runs[0].text;
         const lengthText = videoRenderer.lengthText?.simpleText;
         const len = ['0','0','0',...(lengthText ? lengthText.split(':') : [])].slice(-3).map(i=>(i.length<2?'0':'')+i).join(':'); 
         const length = videoRenderer.lengthText ? len : null;
@@ -35,7 +35,7 @@ function handleFirstPage(responseData){
         const channelUrl = `https://www.youtube.com${videoRenderer.ownerText.runs[0].navigationEndpoint.commandMetadata.webCommandMetadata.url}`;
         const published = videoRenderer.publishedTimeText?.simpleText;
         const views = videoRenderer.viewCountText?.simpleText;
-        const thumbnail = videoRenderer.thumbnail.thumbnails[0].url;
+        const thumbnail = videoRenderer.thumbnail.thumbnails[0].url.split('?')[0];
         const isUpcoming = videoRenderer.upcomingEventData ? new Date(videoRenderer.upcomingEventData.startTime*1000).toISOString() : false;
         return {videoId, title, description, length, channel, url, channelUrl, published, views, thumbnail, isUpcoming};
       });
