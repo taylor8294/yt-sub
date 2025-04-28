@@ -33,7 +33,7 @@
 
   <div id="previous-video" class="video-row"></div>
   <div id="current-video" class="video-row"></div>
-  <div><a href="" target="_blank"><img id="thumbnail" src="" /></a></div>
+  <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen=""></iframe>
   <div id="next-video" class="video-row"></div>
 
   <div class="buttons">
@@ -73,8 +73,7 @@
       // Update the video display rows with titles and links
       document.getElementById('previous-video').innerHTML = `Previous Video: <a href="${videoList[videoList.length-1-prevIndex].url}" target="_blank">${videoList[videoList.length-1-prevIndex].title} - ${videoList[videoList.length-1-prevIndex].channel} [${videoList[videoList.length-1-prevIndex].length}]</a>`;
       document.getElementById('current-video').innerHTML = `Current Video: <a href="${videoList[videoList.length-1-currentIndex].url}" target="_blank">${videoList[videoList.length-1-currentIndex].title} - ${videoList[videoList.length-1-currentIndex].channel} [${videoList[videoList.length-1-currentIndex].length}]</a>`;
-      document.getElementById('thumbnail').src = videoList[videoList.length-1-currentIndex].thumbnail;
-      document.getElementById('thumbnail').parentElement.href = videoList[videoList.length-1-currentIndex].url;
+      document.getElementsByTagName('iframe')[0].src = `https://www.youtube-nocookie.com/embed/${videoList[videoList.length-1-currentIndex].videoId}`;
       document.getElementById('next-video').innerHTML = `Next Video: <a href="${videoList[videoList.length-1-nextIndex].url}" target="_blank">${videoList[videoList.length-1-nextIndex].title} - ${videoList[videoList.length-1-nextIndex].channel} [${videoList[videoList.length-1-nextIndex].length}]</a>`;
       document.getElementById('video-list-input').value = JSON.stringify(videoList, null, 2);
       document.getElementById('current-index').innerHTML = `Current index is: ${currentIndex}`;
